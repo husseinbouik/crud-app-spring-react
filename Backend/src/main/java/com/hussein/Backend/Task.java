@@ -2,6 +2,7 @@ package com.hussein.Backend;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tasks")
@@ -21,6 +22,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
+    @JsonBackReference
     private Project project;
 
     @Column(name = "created_at")

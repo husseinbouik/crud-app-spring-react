@@ -2,6 +2,10 @@ package com.hussein.Backend;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
+
 
 @Entity
 @Table(name = "projects")
@@ -16,9 +20,16 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Task> tasks;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
+
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -38,4 +49,8 @@ public class Project {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public List<Task> getTasks() { return tasks; }
+    public void setTasks(List<Task> tasks) { this.tasks = tasks; }
+
 } 
