@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -12,12 +15,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Size(max = 50)
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @NotBlank
+    @Size(min = 6, max = 255)
     @Column(nullable = false, length = 255)
     private String password;
 
+    @NotBlank
+    @Email
+    @Size(max = 100)
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
