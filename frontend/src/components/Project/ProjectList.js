@@ -6,46 +6,48 @@ import {
   Typography,
   Button,
   Grid,
-  Chip,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   LinearProgress,
   Alert,
   Fab,
-  Tooltip
+  Tooltip,
+  Container,
+  Chip,
+  CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Visibility as ViewIcon,
-  CalendarToday as CalendarIcon,
   Person as PersonIcon,
-  Assignment as TaskIcon
+  Assignment as TaskIcon,
+  Folder as FolderIcon,
+  CalendarToday as CalendarIcon
 } from '@mui/icons-material';
+import { useAuth } from '../../context/AuthContext';
 import projectService from '../../services/projectService';
+import ProjectViewModal from './ProjectViewModal';
 
 const ProjectList = () => {
+  const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    status: 'PLANNING',
-    startDate: '',
-    endDate: ''
+    description: ''
   });
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     fetchProjects();
@@ -54,9 +56,9 @@ const ProjectList = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const data = await projectService.getAllProjects();
-      setProjects(data);
-      setError(null);
+      const response = await projectService.getAllProjects();
+      setProjects(response.data);
+      setError('');
     } catch (err) {
       setError('Failed to fetch projects');
       console.error('Error fetching projects:', err);
@@ -70,20 +72,11 @@ const ProjectList = () => {
       setEditingProject(project);
       setFormData({
         name: project.name,
-        description: project.description,
-        status: project.status,
-        startDate: project.startDate ? project.startDate.split('T')[0] : '',
-        endDate: project.endDate ? project.endDate.split('T')[0] : ''
+        description: project.description || ''
       });
     } else {
       setEditingProject(null);
-      setFormData({
-        name: '',
-        description: '',
-        status: 'PLANNING',
-        startDate: '',
-        endDate: ''
-      });
+      setFormData({ name: '', description: '' });
     }
     setOpenDialog(true);
   };
@@ -91,21 +84,14 @@ const ProjectList = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingProject(null);
-    setFormData({
-      name: '',
-      description: '',
-      status: 'PLANNING',
-      startDate: '',
-      endDate: ''
-    });
+    setFormData({ name: '', description: '' });
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -113,14 +99,16 @@ const ProjectList = () => {
     try {
       if (editingProject) {
         await projectService.updateProject(editingProject.id, formData);
+        setSuccess('Project updated successfully!');
       } else {
         await projectService.createProject(formData);
+        setSuccess('Project created successfully!');
       }
       handleCloseDialog();
       fetchProjects();
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError('Failed to save project');
-      console.error('Error saving project:', err);
+      setError(err.response?.data?.message || 'Failed to save project');
     }
   };
 
@@ -128,45 +116,58 @@ const ProjectList = () => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
         await projectService.deleteProject(projectId);
+        setSuccess('Project deleted successfully!');
         fetchProjects();
+        setTimeout(() => setSuccess(''), 3000);
       } catch (err) {
         setError('Failed to delete project');
-        console.error('Error deleting project:', err);
       }
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PLANNING': return 'default';
-      case 'IN_PROGRESS': return 'primary';
-      case 'COMPLETED': return 'success';
-      case 'ON_HOLD': return 'warning';
-      case 'CANCELLED': return 'error';
-      default: return 'default';
-    }
+  const handleViewProject = (project) => {
+    setSelectedProject(project);
+    setViewModalOpen(true);
   };
 
-  const getStatusLabel = (status) => {
-    return status.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  const handleCloseViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedProject(null);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not specified';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   if (loading) {
     return (
-      <Box sx={{ width: '100%', mt: 2 }}>
-        <LinearProgress />
-        <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
-          Loading projects...
-        </Typography>
-      </Box>
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Box sx={{ width: '100%', mt: 2 }}>
+          <LinearProgress />
+          <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+            Loading projects...
+          </Typography>
+        </Box>
+      </Container>
     );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
           {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
+          {success}
         </Alert>
       )}
 
@@ -180,7 +181,7 @@ const ProjectList = () => {
           onClick={() => handleOpenDialog()}
           sx={{ borderRadius: 2 }}
         >
-          New Project
+          Add Project
         </Button>
       </Box>
 
@@ -223,35 +224,42 @@ const ProjectList = () => {
                     <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
                       {project.name}
                     </Typography>
-                    <Chip
-                      label={getStatusLabel(project.status)}
-                      color={getStatusColor(project.status)}
-                      size="small"
-                    />
                   </Box>
 
-                  <Typography variant="body2" color="textSecondary" sx={{ mb: 2, flexGrow: 1 }}>
+                  <Typography 
+                    variant="body2" 
+                    color="textSecondary" 
+                    sx={{ 
+                      mb: 2,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}
+                  >
                     {project.description || 'No description provided'}
                   </Typography>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <CalendarIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                    <Typography variant="caption" color="textSecondary">
-                      {project.startDate ? new Date(project.startDate).toLocaleDateString() : 'No start date'}
-                    </Typography>
-                  </Box>
+                  {project.userName && (
+                    <Box display="flex" alignItems="center" mb={1}>
+                      <PersonIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                      <Typography variant="caption" color="textSecondary">
+                        {project.userName}
+                      </Typography>
+                    </Box>
+                  )}
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <PersonIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <CalendarIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" color="textSecondary">
-                      {project.owner?.username || 'Unknown owner'}
+                      {formatDate(project.createdAt)}
                     </Typography>
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <Tooltip title="View Details">
-                        <IconButton size="small" color="primary">
+                        <IconButton size="small" color="primary" onClick={() => handleViewProject(project)}>
                           <ViewIcon />
                         </IconButton>
                       </Tooltip>
@@ -285,7 +293,7 @@ const ProjectList = () => {
       {/* Add/Edit Project Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editingProject ? 'Edit Project' : 'Create New Project'}
+          {editingProject ? 'Edit Project' : 'Add New Project'}
         </DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
@@ -310,48 +318,9 @@ const ProjectList = () => {
               fullWidth
               variant="outlined"
               multiline
-              rows={3}
+              rows={4}
               value={formData.description}
               onChange={handleInputChange}
-              sx={{ mb: 2 }}
-            />
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                name="status"
-                value={formData.status}
-                label="Status"
-                onChange={handleInputChange}
-              >
-                <MenuItem value="PLANNING">Planning</MenuItem>
-                <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                <MenuItem value="COMPLETED">Completed</MenuItem>
-                <MenuItem value="ON_HOLD">On Hold</MenuItem>
-                <MenuItem value="CANCELLED">Cancelled</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              margin="dense"
-              name="startDate"
-              label="Start Date"
-              type="date"
-              fullWidth
-              variant="outlined"
-              value={formData.startDate}
-              onChange={handleInputChange}
-              InputLabelProps={{ shrink: true }}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              name="endDate"
-              label="End Date"
-              type="date"
-              fullWidth
-              variant="outlined"
-              value={formData.endDate}
-              onChange={handleInputChange}
-              InputLabelProps={{ shrink: true }}
             />
           </DialogContent>
           <DialogActions>
@@ -363,16 +332,13 @@ const ProjectList = () => {
         </form>
       </Dialog>
 
-      {/* Floating Action Button */}
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
-        onClick={() => handleOpenDialog()}
-      >
-        <AddIcon />
-      </Fab>
-    </Box>
+      {/* View Modal */}
+      <ProjectViewModal
+        open={viewModalOpen}
+        onClose={handleCloseViewModal}
+        project={selectedProject}
+      />
+    </Container>
   );
 };
 

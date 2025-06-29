@@ -6,9 +6,11 @@ import Dashboard from './pages/Dashboard';
 import './App.css'; //Optional
 import AddTaskPage from './components/AddTaskPage';
 import EditTaskPage from './components/EditTaskPage';
+import ProjectList from './components/Project/ProjectList';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import Layout from './components/layout/Layout';
 
 function App() {
   return (
@@ -27,19 +29,14 @@ function App() {
           } />
           <Route path="/" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout />
             </ProtectedRoute>
-          } /> 
-          <Route path="/add-task" element={
-            <ProtectedRoute>
-              <AddTaskPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/edit-task/:id" element={
-            <ProtectedRoute>
-              <EditTaskPage />
-            </ProtectedRoute>
-          } />
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="projects" element={<ProjectList />} />
+            <Route path="add-task" element={<AddTaskPage />} />
+            <Route path="edit-task/:id" element={<EditTaskPage />} />
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>

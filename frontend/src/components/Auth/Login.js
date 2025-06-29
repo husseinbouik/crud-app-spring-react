@@ -14,6 +14,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
+import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from './ForgotPassword';
 import AppTheme from '../shared-theme/AppTheme';
@@ -69,6 +70,8 @@ export default function SignIn(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [loginError, setLoginError] = React.useState('');
+  const [loginSuccess, setLoginSuccess] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
   const navigate = useNavigate();
@@ -89,17 +92,29 @@ export default function SignIn(props) {
       return;
     }
 
+    setIsLoading(true);
+    setLoginError('');
+    setLoginSuccess('');
+
     const data = new FormData(event.currentTarget);
     const username = data.get('username');
     const password = data.get('password');
 
     try {
       await login(username, password);
-      // Show success message before redirecting
-      alert('Login successful! Redirecting to dashboard...');
-      navigate('/'); // Redirect to dashboard
+      // Show success message
+      setLoginSuccess('Login successful! Redirecting to dashboard...');
+      
+      // Redirect to dashboard after 4 seconds
+      setTimeout(() => {
+        navigate('/'); // Redirect to dashboard
+      }, 4000);
     } catch (error) {
-      setLoginError(error.response?.data || 'Login failed.');
+      // Extract error message from the response
+      const errorMessage = error.response?.data?.error || error.response?.data || 'Login failed.';
+      setLoginError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -144,6 +159,11 @@ export default function SignIn(props) {
           >
             Sign in
           </Typography>
+          {loginSuccess && (
+            <Typography color="success.main" align="center">
+              {loginSuccess}
+            </Typography>
+          )}
           {loginError && (
             <Typography color="error" align="center">
               {loginError}
@@ -202,8 +222,16 @@ export default function SignIn(props) {
               type="submit"
               fullWidth
               variant="contained"
+              disabled={isLoading}
             >
-              Sign in
+              {isLoading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} />
+                  Logging in...
+                </>
+              ) : (
+                'Sign in'
+              )}
             </Button>
             <Link
               component="button"

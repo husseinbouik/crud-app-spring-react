@@ -12,9 +12,11 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
+import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme'; // Adjust the path as necessary
 import ColorModeSelect from '../shared-theme/ColorModeSelect'; // Adjust the path as necessary
+import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
 import authService from '../../services/authService';  // Import your auth service
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -68,6 +70,7 @@ export default function Register(props) {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [registrationError, setRegistrationError] = React.useState('');
   const [registrationSuccess, setRegistrationSuccess] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -78,6 +81,10 @@ export default function Register(props) {
       return;
     }
 
+    setIsLoading(true);
+    setRegistrationError('');
+    setRegistrationSuccess('');
+
     const data = new FormData(event.currentTarget);
     const username = data.get('username');
     const email = data.get('email');
@@ -86,15 +93,17 @@ export default function Register(props) {
     try {
       const response = await authService.register(username, email, password);
       setRegistrationSuccess('Registration successful! Redirecting to login page...');
-      setRegistrationError(''); // Clear any previous errors
       
-      // Redirect to login page after 2 seconds
+      // Redirect to login page after 4 seconds
       setTimeout(() => {
         navigate('/login');
-      }, 2000);
+      }, 4000);
     } catch (error) {
-      setRegistrationError(error.response?.data || 'Registration failed.');
-      setRegistrationSuccess(''); // Clear success message
+      // Extract error message from the response
+      const errorMessage = error.response?.data?.error || error.response?.data || 'Registration failed.';
+      setRegistrationError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -141,12 +150,13 @@ export default function Register(props) {
       <RegisterContainer direction="column" justifyContent="space-between">
         <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
         <Card variant="outlined">
+          <img src="download.jpg" alt="Download" width={100} />
           <Typography
             component="h1"
             variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
+            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
           >
-            Register
+            Sign up
           </Typography>
           {registrationSuccess && (
             <Typography color="success.main" align="center">
@@ -160,7 +170,7 @@ export default function Register(props) {
           )}
           <Box
             component="form"
-            onSubmit={handleSubmit} // Correctly handling form submission
+            onSubmit={handleSubmit}
             noValidate
             sx={{
               display: 'flex',
@@ -219,23 +229,47 @@ export default function Register(props) {
               />
             </FormControl>
             <Button
-              type="submit" // This ensures form submission happens properly
+              type="submit"
               fullWidth
               variant="contained"
+              disabled={isLoading}
             >
-              Register
+              {isLoading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} />
+                  Creating account...
+                </>
+              ) : (
+                'Sign up'
+              )}
             </Button>
           </Box>
-
-          <Divider>Already have an account?</Divider>
+          <Divider>or</Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => alert('Sign up with Google')}
+              startIcon={<GoogleIcon />}
+            >
+              Sign up with Google
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => alert('Sign up with Facebook')}
+              startIcon={<FacebookIcon />}
+            >
+              Sign up with Facebook
+            </Button>
             <Typography sx={{ textAlign: 'center' }}>
+              Already have an account?{' '}
               <Link
-                href="/login"  // or wherever your login route is
+                href="/login"
                 variant="body2"
                 sx={{ alignSelf: 'center' }}
               >
-                Login
+                Sign in
               </Link>
             </Typography>
           </Box>

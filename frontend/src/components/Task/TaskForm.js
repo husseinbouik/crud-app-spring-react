@@ -13,26 +13,44 @@ import {
   Box,
   Grid,
 } from '@mui/material';
+import projectService from '../../services/projectService';
 
 function TaskForm({ onSubmit, onClose, initialTask }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
   const [status, setStatus] = useState('pending'); // Default status
+  const [projectId, setProjectId] = useState('');
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   useEffect(() => {
     if (initialTask) {
       setTitle(initialTask.title || '');
       setDescription(initialTask.description || '');
-      setDueDate(initialTask.dueDate || '');
       setStatus(initialTask.status || 'pending');
+      setProjectId(initialTask.projectId || '');
     } else {
       setTitle('');
       setDescription('');
-      setDueDate('');
       setStatus('pending');
+      setProjectId('');
     }
   }, [initialTask]);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await projectService.getAllProjects();
+      setProjects(response.data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -40,8 +58,8 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
       id: initialTask?.id, // Include ID for updates
       title,
       description,
-      dueDate,
       status,
+      projectId: projectId || null, // Include project ID
     };
     onSubmit(taskData);
   };
@@ -72,17 +90,23 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Due Date"
-            type="date"
-            variant="outlined"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="project-label">Project</InputLabel>
+            <Select
+              labelId="project-label"
+              id="project"
+              value={projectId}
+              label="Project"
+              onChange={(e) => setProjectId(e.target.value)}
+              required
+            >
+              {projects.map((project) => (
+                <MenuItem key={project.id} value={project.id}>
+                  {project.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth variant="outlined">
@@ -95,6 +119,7 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
               onChange={(e) => setStatus(e.target.value)}
             >
               <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="in progress">In Progress</MenuItem>
               <MenuItem value="completed">Completed</MenuItem>
             </Select>
           </FormControl>

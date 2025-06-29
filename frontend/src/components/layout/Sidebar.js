@@ -16,6 +16,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import FolderIcon from '@mui/icons-material/Folder';
 import { styled, useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -98,6 +99,10 @@ function SidebarComponent() {
         navigate('/add-task');
     };
 
+    const handleProjects = () => {
+        navigate('/projects');
+    };
+
     return (
         <Box sx={{ display: 'flex' }}>
             <DrawerComponent variant="permanent" open={open}>
@@ -135,6 +140,18 @@ function SidebarComponent() {
                                 <DashboardIcon />
                             </ListItemIcon>
                             <ListItemText primary="Dashboard" />
+                        </ListItem>
+                    </Tooltip>
+                    <Tooltip title="Projects" placement="right">
+                        <ListItem button key="Projects" onClick={handleProjects} sx={{
+                            '&:hover': {
+                                backgroundColor: theme.palette.action.hover,
+                            },
+                        }}>
+                            <ListItemIcon>
+                                <FolderIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Projects" />
                         </ListItem>
                     </Tooltip>
                     <Tooltip title="Add Task" placement="right">

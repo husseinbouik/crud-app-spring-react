@@ -49,6 +49,8 @@ import ProjectIcon from '@mui/icons-material/Folder';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import AppTheme from '../components/shared-theme/AppTheme';
@@ -101,6 +103,270 @@ const FloatingActionButton = styled(Fab)(({ theme }) => ({
   right: theme.spacing(3),
   zIndex: 1000,
 }));
+
+// Custom styled cards for dashboard
+const DashboardTaskCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  backgroundColor: theme.palette.mode === 'dark' 
+    ? 'rgba(144, 202, 249, 0.08)' // Light blue tint in dark mode
+    : 'rgba(144, 202, 249, 0.05)', // Very light blue tint in light mode
+  border: `1px solid ${theme.palette.mode === 'dark' 
+    ? 'rgba(144, 202, 249, 0.2)' 
+    : 'rgba(144, 202, 249, 0.15)'}`,
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: theme.shadows[4],
+    backgroundColor: theme.palette.mode === 'dark' 
+      ? 'rgba(144, 202, 249, 0.12)' 
+      : 'rgba(144, 202, 249, 0.08)',
+  },
+}));
+
+const DashboardProjectCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  backgroundColor: theme.palette.mode === 'dark' 
+    ? 'rgba(156, 204, 101, 0.08)' // Light green tint in dark mode
+    : 'rgba(156, 204, 101, 0.05)', // Very light green tint in light mode
+  border: `1px solid ${theme.palette.mode === 'dark' 
+    ? 'rgba(156, 204, 101, 0.2)' 
+    : 'rgba(156, 204, 101, 0.15)'}`,
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: theme.shadows[4],
+    backgroundColor: theme.palette.mode === 'dark' 
+      ? 'rgba(156, 204, 101, 0.12)' 
+      : 'rgba(156, 204, 101, 0.08)',
+  },
+}));
+
+// Custom Dashboard Task List Component
+const DashboardTaskList = ({ tasks, onDelete, onEdit, onView }) => {
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'success';
+      case 'in progress':
+        return 'primary';
+      default:
+        return 'default';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'Completed';
+      case 'in progress':
+        return 'In Progress';
+      default:
+        return 'Pending';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not specified';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <Grid container spacing={2}>
+      {tasks.map((task) => (
+        <Grid item xs={12} sm={6} md={4} key={task.id}>
+          <DashboardTaskCard>
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                <Typography variant="h6" component="h3" sx={{ fontWeight: 600, flex: 1 }}>
+                  {task.title}
+                </Typography>
+                <Box>
+                  <Tooltip title="View Details">
+                    <IconButton
+                      size="small"
+                      onClick={() => onView(task)}
+                      sx={{ color: 'primary.main' }}
+                    >
+                      <TaskIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Box>
+
+              <Typography 
+                variant="body2" 
+                color="textSecondary" 
+                sx={{ 
+                  mb: 2,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
+                }}
+              >
+                {task.description || 'No description provided'}
+              </Typography>
+
+              <Box display="flex" alignItems="center" mb={1}>
+                <ProjectIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                <Typography variant="caption" color="textSecondary">
+                  {task.projectName || 'No project assigned'}
+                </Typography>
+              </Box>
+
+              <Box display="flex" alignItems="center" mb={2}>
+                <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                <Typography variant="caption" color="textSecondary">
+                  {formatDate(task.createdAt)}
+                </Typography>
+              </Box>
+
+              <Chip 
+                label={getStatusLabel(task.status)}
+                color={getStatusColor(task.status)}
+                size="small"
+              />
+            </CardContent>
+
+            <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
+              <Box>
+                <Tooltip title="Edit Task">
+                  <IconButton
+                    size="small"
+                    onClick={() => onEdit(task)}
+                    sx={{ color: 'primary.main' }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete Task">
+                  <IconButton
+                    size="small"
+                    onClick={() => onDelete(task.id)}
+                    sx={{ color: 'error.main' }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </CardActions>
+          </DashboardTaskCard>
+        </Grid>
+      ))}
+    </Grid>
+  );
+};
+
+// Custom Dashboard Project List Component
+const DashboardProjectList = ({ projects, onDelete, onEdit, onView }) => {
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not specified';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <Grid container spacing={2}>
+      {projects.map((project) => (
+        <Grid item xs={12} sm={6} md={4} key={project.id}>
+          <DashboardProjectCard>
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                <Typography variant="h6" component="h3" sx={{ fontWeight: 600, flex: 1 }}>
+                  {project.name}
+                </Typography>
+                <Box>
+                  <Tooltip title="View Details">
+                    <IconButton
+                      size="small"
+                      onClick={() => onView(project)}
+                      sx={{ color: 'primary.main' }}
+                    >
+                      <ProjectIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Box>
+
+              <Typography 
+                variant="body2" 
+                color="textSecondary" 
+                sx={{ 
+                  mb: 2,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
+                }}
+              >
+                {project.description || 'No description provided'}
+              </Typography>
+
+              {project.userName && (
+                <Box display="flex" alignItems="center" mb={1}>
+                  <PersonIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                  <Typography variant="caption" color="textSecondary">
+                    {project.userName}
+                  </Typography>
+                </Box>
+              )}
+
+              <Box display="flex" alignItems="center" mb={2}>
+                <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                <Typography variant="caption" color="textSecondary">
+                  {formatDate(project.createdAt)}
+                </Typography>
+              </Box>
+
+              {project.tasks && project.tasks.length > 0 && (
+                <Chip 
+                  label={`${project.tasks.length} task${project.tasks.length !== 1 ? 's' : ''}`}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                />
+              )}
+            </CardContent>
+
+            <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
+              <Box>
+                <Tooltip title="Edit Project">
+                  <IconButton
+                    size="small"
+                    onClick={() => onEdit(project)}
+                    sx={{ color: 'primary.main' }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete Project">
+                  <IconButton
+                    size="small"
+                    onClick={() => onDelete(project.id)}
+                    sx={{ color: 'error.main' }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </CardActions>
+          </DashboardProjectCard>
+        </Grid>
+      ))}
+    </Grid>
+  );
+};
 
 function Dashboard(props) {
   const [tasks, setTasks] = useState([]);
@@ -464,7 +730,7 @@ function Dashboard(props) {
             
             {activeTab === 0 && (
               <Box sx={{ p: 3 }}>
-                <TaskList
+                <DashboardTaskList
                   tasks={tasks}
                   onDelete={handleDeleteTask}
                   onEdit={handleEditTask}
@@ -475,7 +741,7 @@ function Dashboard(props) {
             
             {activeTab === 1 && (
               <Box sx={{ p: 3 }}>
-                <ProjectList
+                <DashboardProjectList
                   projects={projects}
                   onDelete={handleDeleteProject}
                   onEdit={handleEditProject}
@@ -485,15 +751,6 @@ function Dashboard(props) {
             )}
           </Paper>
         </Container>
-
-        {/* Floating Action Button */}
-        <FloatingActionButton
-          color="primary"
-          aria-label="add"
-          onClick={activeTab === 0 ? handleAddTask : handleAddProject}
-        >
-          <AddIcon />
-        </FloatingActionButton>
 
         {/* Add Item Dialog */}
         <Dialog open={showAddDialog} onClose={() => setShowAddDialog(false)} maxWidth="sm" fullWidth>
