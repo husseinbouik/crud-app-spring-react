@@ -11,11 +11,11 @@ public class TaskService {
     private TaskRepository taskRepository;
 
     public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskRepository.findAllWithProjects();
     }
 
     public Optional<Task> getTaskById(Long id) {
-        return taskRepository.findById(id);
+        return taskRepository.findByIdWithProject(id);
     }
 
     public Task createTask(Task task) {

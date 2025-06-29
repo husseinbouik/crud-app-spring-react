@@ -38,6 +38,11 @@ public class User {
     @JsonManagedReference
     private List<Project> projects;
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

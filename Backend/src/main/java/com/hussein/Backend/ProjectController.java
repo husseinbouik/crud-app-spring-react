@@ -4,12 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private AuthService authService;
 
     @GetMapping
     public List<Project> getAllProjects() {
@@ -24,7 +31,11 @@ public class ProjectController {
     }
 
     @PostMapping
-    public Project createProject(@RequestBody Project project) {
+    public Project createProject(@RequestBody Project project, @RequestHeader("Authorization") String authHeader) {
+        User currentUser = authService.getCurrentUser(authHeader);
+        if (currentUser != null) {
+            project.setUser(currentUser);
+        }
         return projectService.createProject(project);
     }
 

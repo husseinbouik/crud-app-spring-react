@@ -24,6 +24,21 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        // For now, we'll return a simple response
+        // In a real application, you'd extract the user from the JWT token
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            // For demo purposes, let's return the first user
+            List<User> users = userService.getAllUsers();
+            if (!users.isEmpty()) {
+                return ResponseEntity.ok(users.get(0));
+            }
+        }
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
     @PostMapping
     public User createUser(@RequestBody @Valid User user) {
         return userService.createUser(user);
