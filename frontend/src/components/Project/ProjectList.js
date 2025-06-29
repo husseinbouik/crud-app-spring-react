@@ -171,35 +171,102 @@ const ProjectList = () => {
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Projects
-        </Typography>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 4,
+        p: 3,
+        borderRadius: 2,
+        backgroundColor: 'background.paper',
+        boxShadow: 1,
+        border: 1,
+        borderColor: 'divider'
+      }}>
+        <Box>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{ 
+              fontWeight: 700,
+              background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 0.5
+            }}
+          >
+            Projects
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage your projects and tasks
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => handleOpenDialog()}
-          sx={{ borderRadius: 2 }}
+          sx={{ 
+            borderRadius: 2,
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+            boxShadow: 2,
+            '&:hover': {
+              boxShadow: 4,
+              transform: 'translateY(-1px)'
+            },
+            transition: 'all 0.2s ease-in-out'
+          }}
         >
           Add Project
         </Button>
       </Box>
 
       {projects.length === 0 ? (
-        <Card sx={{ textAlign: 'center', py: 4 }}>
+        <Card sx={{ 
+          textAlign: 'center', 
+          py: 6,
+          px: 4,
+          borderRadius: 3,
+          boxShadow: 2,
+          border: 1,
+          borderColor: 'divider',
+          background: (theme) => theme.palette.mode === 'dark' 
+            ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+            : 'linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.01) 100%)'
+        }}>
           <CardContent>
-            <Typography variant="h6" color="textSecondary" gutterBottom>
+            <FolderIcon sx={{ 
+              fontSize: 64, 
+              color: 'text.secondary', 
+              mb: 2,
+              opacity: 0.6
+            }} />
+            <Typography variant="h5" color="textSecondary" gutterBottom sx={{ fontWeight: 600 }}>
               No projects found
             </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              Create your first project to get started
+            <Typography variant="body1" color="textSecondary" sx={{ mb: 3, maxWidth: 400, mx: 'auto' }}>
+              Get started by creating your first project. Projects help you organize and manage your tasks effectively.
             </Typography>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => handleOpenDialog()}
+              sx={{ 
+                borderRadius: 2,
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                boxShadow: 2,
+                '&:hover': {
+                  boxShadow: 4,
+                  transform: 'translateY(-1px)'
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
             >
-              Create Project
+              Create Your First Project
             </Button>
           </CardContent>
         </Card>
@@ -212,55 +279,73 @@ const ProjectList = () => {
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                  position: 'relative',
                   '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
+                    transform: 'translateY(-8px)',
+                    boxShadow: (theme) => theme.palette.mode === 'dark' 
+                      ? '0 20px 40px rgba(0,0,0,0.4)' 
+                      : '0 20px 40px rgba(0,0,0,0.15)',
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    opacity: 0,
+                    transition: 'opacity 0.3s ease',
+                  },
+                  '&:hover::before': {
+                    opacity: 1,
                   }
                 }}
               >
-                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
+                <CardContent sx={{ 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  p: 3,
+                  '&:last-child': { pb: 3 }
+                }}>
+                  {/* Header with title and actions */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start', 
+                    mb: 2 
+                  }}>
+                    <Typography 
+                      variant="h6" 
+                      component="h2" 
+                      sx={{ 
+                        fontWeight: 600,
+                        lineHeight: 1.3,
+                        color: 'text.primary',
+                        flex: 1,
+                        pr: 1
+                      }}
+                    >
                       {project.name}
                     </Typography>
-                  </Box>
-
-                  <Typography 
-                    variant="body2" 
-                    color="textSecondary" 
-                    sx={{ 
-                      mb: 2,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {project.description || 'No description provided'}
-                  </Typography>
-
-                  {project.userName && (
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <PersonIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                      <Typography variant="caption" color="textSecondary">
-                        {project.userName}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <CalendarIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                    <Typography variant="caption" color="textSecondary">
-                      {formatDate(project.createdAt)}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
                       <Tooltip title="View Details">
-                        <IconButton size="small" color="primary" onClick={() => handleViewProject(project)}>
-                          <ViewIcon />
+                        <IconButton 
+                          size="small" 
+                          color="primary" 
+                          onClick={() => handleViewProject(project)}
+                          sx={{ 
+                            '&:hover': { 
+                              backgroundColor: 'primary.light',
+                              color: 'primary.contrastText'
+                            }
+                          }}
+                        >
+                          <ViewIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Edit Project">
@@ -268,8 +353,14 @@ const ProjectList = () => {
                           size="small" 
                           color="primary"
                           onClick={() => handleOpenDialog(project)}
+                          sx={{ 
+                            '&:hover': { 
+                              backgroundColor: 'primary.light',
+                              color: 'primary.contrastText'
+                            }
+                          }}
                         >
-                          <EditIcon />
+                          <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete Project">
@@ -277,10 +368,75 @@ const ProjectList = () => {
                           size="small" 
                           color="error"
                           onClick={() => handleDelete(project.id)}
+                          sx={{ 
+                            '&:hover': { 
+                              backgroundColor: 'error.light',
+                              color: 'error.contrastText'
+                            }
+                          }}
                         >
-                          <DeleteIcon />
+                          <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
+                    </Box>
+                  </Box>
+
+                  {/* Description */}
+                  <Typography 
+                    variant="body2" 
+                    color="textSecondary" 
+                    sx={{ 
+                      mb: 3,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      lineHeight: 1.5,
+                      minHeight: '4.5em'
+                    }}
+                  >
+                    {project.description || 'No description provided'}
+                  </Typography>
+
+                  {/* Project metadata */}
+                  <Box sx={{ mt: 'auto' }}>
+                    {/* User info */}
+                    {project.userName && (
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        mb: 1.5,
+                        p: 1,
+                        borderRadius: 1,
+                        backgroundColor: 'action.hover'
+                      }}>
+                        <PersonIcon sx={{ 
+                          fontSize: 16, 
+                          mr: 1, 
+                          color: 'primary.main' 
+                        }} />
+                        <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 500 }}>
+                          {project.userName}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* Date info */}
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      p: 1,
+                      borderRadius: 1,
+                      backgroundColor: 'action.hover'
+                    }}>
+                      <CalendarIcon sx={{ 
+                        fontSize: 16, 
+                        mr: 1, 
+                        color: 'primary.main' 
+                      }} />
+                      <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 500 }}>
+                        Created {formatDate(project.createdAt)}
+                      </Typography>
                     </Box>
                   </Box>
                 </CardContent>
@@ -291,12 +447,34 @@ const ProjectList = () => {
       )}
 
       {/* Add/Edit Project Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingProject ? 'Edit Project' : 'Add New Project'}
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog} 
+        maxWidth="sm" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: 8,
+            overflow: 'hidden'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          pb: 1,
+          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}15, ${theme.palette.secondary.main}15)`,
+          borderBottom: 1,
+          borderColor: 'divider'
+        }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            {editingProject ? 'Edit Project' : 'Add New Project'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {editingProject ? 'Update your project details' : 'Create a new project to organize your tasks'}
+          </Typography>
         </DialogTitle>
         <form onSubmit={handleSubmit}>
-          <DialogContent>
+          <DialogContent sx={{ pt: 3 }}>
             <TextField
               autoFocus
               margin="dense"
@@ -308,7 +486,12 @@ const ProjectList = () => {
               value={formData.name}
               onChange={handleInputChange}
               required
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 3,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                }
+              }}
             />
             <TextField
               margin="dense"
@@ -321,11 +504,38 @@ const ProjectList = () => {
               rows={4}
               value={formData.description}
               onChange={handleInputChange}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                }
+              }}
             />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button type="submit" variant="contained">
+          <DialogActions sx={{ 
+            p: 3, 
+            pt: 1,
+            borderTop: 1,
+            borderColor: 'divider'
+          }}>
+            <Button 
+              onClick={handleCloseDialog}
+              variant="outlined"
+              sx={{ 
+                borderRadius: 2,
+                px: 3
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained"
+              sx={{ 
+                borderRadius: 2,
+                px: 3,
+                fontWeight: 600
+              }}
+            >
               {editingProject ? 'Update' : 'Create'}
             </Button>
           </DialogActions>

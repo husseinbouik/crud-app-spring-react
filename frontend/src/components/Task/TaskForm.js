@@ -12,7 +12,18 @@ import {
   MenuItem,
   Box,
   Grid,
+  Typography,
+  Chip,
+  Alert,
 } from '@mui/material';
+import {
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  Assignment as TaskIcon,
+  Description as DescriptionIcon,
+  Folder as ProjectIcon,
+  Flag as StatusIcon,
+} from '@mui/icons-material';
 import projectService from '../../services/projectService';
 
 function TaskForm({ onSubmit, onClose, initialTask }) {
@@ -22,6 +33,7 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
   const [projectId, setProjectId] = useState('');
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchProjects();
@@ -45,8 +57,10 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
     try {
       const response = await projectService.getAllProjects();
       setProjects(response.data);
+      setError('');
     } catch (error) {
       console.error('Error fetching projects:', error);
+      setError('Failed to load projects. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -64,41 +78,101 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
     onSubmit(taskData);
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'in progress': return 'info';
+      case 'completed': return 'success';
+      default: return 'default';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Typography variant="body2" color="text.secondary">
+          Loading projects...
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      <Grid container spacing={2}>
+    <Box component="form" onSubmit={handleSubmit}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Grid container spacing={3}>
+        {/* Title Field */}
         <Grid item xs={12}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <TaskIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />
+            <Typography variant="subtitle2" color="text.secondary">
+              Task Title
+            </Typography>
+          </Box>
           <TextField
             autoFocus
             fullWidth
-            label="Title"
+            label="Enter task title"
             variant="outlined"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              }
+            }}
           />
         </Grid>
+
+        {/* Description Field */}
         <Grid item xs={12}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <DescriptionIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />
+            <Typography variant="subtitle2" color="text.secondary">
+              Description
+            </Typography>
+          </Box>
           <TextField
             fullWidth
-            label="Description"
+            label="Enter task description"
             multiline
             rows={4}
             variant="outlined"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              }
+            }}
           />
         </Grid>
+
+        {/* Project Selection */}
         <Grid item xs={12} sm={6}>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel id="project-label">Project</InputLabel>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <ProjectIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />
+            <Typography variant="subtitle2" color="text.secondary">
+              Project
+            </Typography>
+          </Box>
+          <FormControl fullWidth variant="outlined" required>
+            <InputLabel id="project-label">Select project</InputLabel>
             <Select
               labelId="project-label"
               id="project"
               value={projectId}
-              label="Project"
+              label="Select project"
               onChange={(e) => setProjectId(e.target.value)}
-              required
+              sx={{
+                borderRadius: 2,
+              }}
             >
               {projects.map((project) => (
                 <MenuItem key={project.id} value={project.id}>
@@ -108,15 +182,26 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
             </Select>
           </FormControl>
         </Grid>
+
+        {/* Status Selection */}
         <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <StatusIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />
+            <Typography variant="subtitle2" color="text.secondary">
+              Status
+            </Typography>
+          </Box>
           <FormControl fullWidth variant="outlined">
-            <InputLabel id="status-label">Status</InputLabel>
+            <InputLabel id="status-label">Select status</InputLabel>
             <Select
               labelId="status-label"
               id="status"
               value={status}
-              label="Status"
+              label="Select status"
               onChange={(e) => setStatus(e.target.value)}
+              sx={{
+                borderRadius: 2,
+              }}
             >
               <MenuItem value="pending">Pending</MenuItem>
               <MenuItem value="in progress">In Progress</MenuItem>
@@ -124,13 +209,54 @@ function TaskForm({ onSubmit, onClose, initialTask }) {
             </Select>
           </FormControl>
         </Grid>
+
+        {/* Status Preview */}
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button onClick={onClose} sx={{ mr: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mr: 1 }}>
+              Current Status:
+            </Typography>
+            <Chip 
+              label={status.charAt(0).toUpperCase() + status.slice(1)} 
+              color={getStatusColor(status)}
+              size="small"
+              variant="outlined"
+            />
+          </Box>
+        </Grid>
+
+        {/* Action Buttons */}
+        <Grid item xs={12}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            gap: 2,
+            pt: 2,
+            borderTop: 1,
+            borderColor: 'divider'
+          }}>
+            <Button 
+              onClick={onClose} 
+              variant="outlined"
+              startIcon={<CancelIcon />}
+              sx={{ 
+                borderRadius: 2,
+                px: 3
+              }}
+            >
               Cancel
             </Button>
-            <Button variant="contained" color="primary" type="submit">
-              {initialTask ? 'Update Task' : 'Add Task'}
+            <Button 
+              variant="contained" 
+              color="primary" 
+              type="submit"
+              startIcon={<SaveIcon />}
+              sx={{ 
+                borderRadius: 2,
+                px: 3
+              }}
+            >
+              {initialTask ? 'Update Task' : 'Create Task'}
             </Button>
           </Box>
         </Grid>

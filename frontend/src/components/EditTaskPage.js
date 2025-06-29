@@ -1,39 +1,22 @@
 // EditTaskPage.js
 import React, { useState, useEffect } from 'react';
 import TaskForm from '../components/Task/TaskForm';
-import { Container, Typography, Alert, Box } from '@mui/material';
+import { 
+  Container, 
+  Typography, 
+  Alert, 
+  Box, 
+  Card, 
+  CardContent,
+  Divider,
+  CircularProgress,
+  Button
+} from '@mui/material';
 import { useParams } from 'react-router-dom';
 import taskService from '../services/taskService';
-import AppTheme from './shared-theme/AppTheme';
-import CssBaseline from '@mui/material/CssBaseline';
-import ColorModeSelect from './shared-theme/ColorModeSelect';
-import { styled } from '@mui/material/styles';
-import NavbarComponent from './layout/Sidebar'; // Import Navbar
-import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
-const EditTaskPageStack = styled(Box)(({ theme }) => ({
-  height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-  minHeight: '100%',
-  padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(4),
-  },
-  '&::before': {
-    content: '""',
-    display: 'block',
-    position: 'absolute',
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
-    backgroundRepeat: 'no-repeat',
-    ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-    }),
-  },
-}));
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 
 function EditTaskPage() {
   const { id } = useParams();
@@ -42,7 +25,7 @@ function EditTaskPage() {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -65,7 +48,7 @@ function EditTaskPage() {
       setSuccessMessage('Task updated successfully!');
       setErrorMessage('');
       setTimeout(() => {
-          navigate('/');
+        navigate('/');
       }, 1500);
     } catch (error) {
       console.error('Error updating task:', error);
@@ -75,42 +58,104 @@ function EditTaskPage() {
   };
 
   const handleCancel = () => {
-      navigate('/');
+    navigate('/');
   };
 
   if (loading) {
-    return <p>Loading task...</p>;
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '50vh' 
+        }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress size={60} sx={{ mb: 2 }} />
+            <Typography variant="h6" color="text.secondary">
+              Loading task...
+            </Typography>
+          </Box>
+        </Box>
+      </Container>
+    );
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          Error: {error}
+        </Alert>
+        <Button variant="contained" onClick={handleCancel}>
+          Go Back
+        </Button>
+      </Container>
+    );
   }
 
   return (
-    <AppTheme>
-        <NavbarComponent /> 
-      <CssBaseline enableColorScheme />
-      <EditTaskPageStack direction="column" justifyContent="space-between">
-        <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
-        <Container maxWidth="md">
-          <Typography variant="h4" component="h2" gutterBottom>
-            Edit Task
-          </Typography>
-          {successMessage && <Alert severity="success">{successMessage}</Alert>}
-          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-          {task && (
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      {/* Header Section */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <IconButton 
+          onClick={handleCancel}
+          sx={{ mr: 2, color: 'text.secondary' }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+          Edit Task
+        </Typography>
+      </Box>
+
+      {/* Alerts */}
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          {successMessage}
+        </Alert>
+      )}
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {errorMessage}
+        </Alert>
+      )}
+
+      {/* Task Form Card */}
+      {task && (
+        <Card 
+          sx={{ 
+            boxShadow: 3,
+            borderRadius: 2,
+            overflow: 'hidden',
+            transition: 'box-shadow 0.3s ease-in-out',
+            '&:hover': {
+              boxShadow: 6
+            }
+          }}
+        >
+          <CardContent sx={{ p: 4 }}>
+            <Typography 
+              variant="h6" 
+              component="h2" 
+              sx={{ 
+                mb: 3, 
+                fontWeight: 500,
+                color: 'text.primary'
+              }}
+            >
+              Task Details
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
             <TaskForm
               onSubmit={handleSubmit}
               onClose={handleCancel}
               initialTask={task}
             />
-          )}
-            {/* <Button variant="contained" color="secondary" onClick={handleCancel}>
-                Cancel
-            </Button> */}
-        </Container>
-      </EditTaskPageStack>
-    </AppTheme>
+          </CardContent>
+        </Card>
+      )}
+    </Container>
   );
 }
 

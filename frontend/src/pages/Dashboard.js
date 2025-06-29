@@ -68,6 +68,8 @@ const StatsCard = styled(Card)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  borderRadius: 3,
+  overflow: 'hidden',
   '&:hover': {
     transform: 'translateY(-4px)',
     boxShadow: theme.shadows[8],
@@ -116,6 +118,8 @@ const DashboardTaskCard = styled(Card)(({ theme }) => ({
   border: `1px solid ${theme.palette.mode === 'dark' 
     ? 'rgba(144, 202, 249, 0.2)' 
     : 'rgba(144, 202, 249, 0.15)'}`,
+  borderRadius: 3,
+  overflow: 'hidden',
   '&:hover': {
     transform: 'translateY(-2px)',
     boxShadow: theme.shadows[4],
@@ -136,6 +140,8 @@ const DashboardProjectCard = styled(Card)(({ theme }) => ({
   border: `1px solid ${theme.palette.mode === 'dark' 
     ? 'rgba(156, 204, 101, 0.2)' 
     : 'rgba(156, 204, 101, 0.15)'}`,
+  borderRadius: 3,
+  overflow: 'hidden',
   '&:hover': {
     transform: 'translateY(-2px)',
     boxShadow: theme.shadows[4],
@@ -566,36 +572,86 @@ function Dashboard(props) {
   }
 
   return (
-    <AppTheme {...props}>
-      <CssBaseline enableColorScheme />
-      <SidebarComponent />
-      <DashboardStack>
-        <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 1000 }} />
-        
-        <Container maxWidth="xl">
-          {/* Header */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Dashboard
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Welcome back! Here's an overview of your projects and tasks.
-            </Typography>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <CircularProgress size={60} />
+        </Box>
+      ) : (
+        <>
+          {/* Header Section */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 4,
+            p: 3,
+            borderRadius: 2,
+            backgroundColor: 'background.paper',
+            boxShadow: 1,
+            border: 1,
+            borderColor: 'divider'
+          }}>
+            <Box>
+              <Typography 
+                variant="h4" 
+                component="h1" 
+                sx={{ 
+                  fontWeight: 700,
+                  background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 0.5
+                }}
+              >
+                Dashboard
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Overview of your projects and tasks
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddTask}
+                sx={{ 
+                  borderRadius: 2,
+                  px: 3,
+                  py: 1.5,
+                  fontWeight: 600,
+                  boxShadow: 2,
+                  '&:hover': {
+                    boxShadow: 4,
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                Add Task
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ProjectIcon />}
+                onClick={handleAddProject}
+                sx={{ 
+                  borderRadius: 2,
+                  px: 3,
+                  py: 1.5,
+                  fontWeight: 600,
+                  '&:hover': {
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                Add Project
+              </Button>
+            </Box>
           </Box>
 
-          {/* Success/Error Messages */}
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {successMessage}
-            </Alert>
-          )}
-          {errorMessage && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {errorMessage}
-            </Alert>
-          )}
-
-          {/* Analytics Cards */}
+          {/* Stats Cards */}
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
               <StatsCard>
@@ -698,21 +754,42 @@ function Dashboard(props) {
           {/* Quick Stats */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Paper sx={{ 
+                p: 3, 
+                textAlign: 'center',
+                borderRadius: 3,
+                boxShadow: 2,
+                border: 1,
+                borderColor: 'divider'
+              }}>
                 <CheckCircleIcon color="success" sx={{ fontSize: 40, mb: 1 }} />
                 <Typography variant="h6">{completedTasks}</Typography>
                 <Typography variant="body2" color="textSecondary">Completed Tasks</Typography>
               </Paper>
             </Grid>
             <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Paper sx={{ 
+                p: 3, 
+                textAlign: 'center',
+                borderRadius: 3,
+                boxShadow: 2,
+                border: 1,
+                borderColor: 'divider'
+              }}>
                 <PendingIcon color="warning" sx={{ fontSize: 40, mb: 1 }} />
                 <Typography variant="h6">{pendingTasks}</Typography>
                 <Typography variant="body2" color="textSecondary">Pending Tasks</Typography>
               </Paper>
             </Grid>
             <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Paper sx={{ 
+                p: 3, 
+                textAlign: 'center',
+                borderRadius: 3,
+                boxShadow: 2,
+                border: 1,
+                borderColor: 'divider'
+              }}>
                 <TrendingUpIcon color="info" sx={{ fontSize: 40, mb: 1 }} />
                 <Typography variant="h6">{completionRate}%</Typography>
                 <Typography variant="body2" color="textSecondary">Completion Rate</Typography>
@@ -721,7 +798,14 @@ function Dashboard(props) {
           </Grid>
 
           {/* Tabs for Tasks and Projects */}
-          <Paper sx={{ mb: 3 }}>
+          <Paper sx={{ 
+            mb: 3,
+            borderRadius: 3,
+            overflow: 'hidden',
+            boxShadow: 2,
+            border: 1,
+            borderColor: 'divider'
+          }}>
             <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
               <Tab label={`Tasks (${totalTasks})`} />
               <Tab label={`Projects (${totalProjects})`} />
@@ -750,61 +834,118 @@ function Dashboard(props) {
               </Box>
             )}
           </Paper>
-        </Container>
+        </>
+      )}
 
-        {/* Add Item Dialog */}
-        <Dialog open={showAddDialog} onClose={() => setShowAddDialog(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>
+      {/* Add Item Dialog */}
+      <Dialog 
+        open={showAddDialog} 
+        onClose={() => setShowAddDialog(false)} 
+        maxWidth="sm" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: 8,
+            overflow: 'hidden'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          pb: 1,
+          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}15, ${theme.palette.secondary.main}15)`,
+          borderBottom: 1,
+          borderColor: 'divider'
+        }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Add New {addDialogType === 'task' ? 'Task' : 'Project'}
-          </DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Title"
-              fullWidth
-              variant="outlined"
-              value={newItem.title}
-              onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Description"
-              fullWidth
-              variant="outlined"
-              multiline
-              rows={3}
-              value={newItem.description}
-              onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-              sx={{ mb: 2 }}
-            />
-            {addDialogType === 'task' && (
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Project</InputLabel>
-                <Select
-                  value={newItem.projectId}
-                  label="Project"
-                  onChange={(e) => setNewItem({ ...newItem, projectId: e.target.value })}
-                >
-                  {projects.map((project) => (
-                    <MenuItem key={project.id} value={project.id}>
-                      {project.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShowAddDialog(false)}>Cancel</Button>
-            <Button onClick={handleCreateItem} variant="contained">
-              Create {addDialogType === 'task' ? 'Task' : 'Project'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </DashboardStack>
-    </AppTheme>
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {addDialogType === 'task' ? 'Create a new task' : 'Create a new project'}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Title"
+            fullWidth
+            variant="outlined"
+            value={newItem.title}
+            onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              }
+            }}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            variant="outlined"
+            multiline
+            rows={3}
+            value={newItem.description}
+            onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              }
+            }}
+          />
+          {addDialogType === 'task' && (
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Project</InputLabel>
+              <Select
+                value={newItem.projectId}
+                label="Project"
+                onChange={(e) => setNewItem({ ...newItem, projectId: e.target.value })}
+                sx={{
+                  borderRadius: 2,
+                }}
+              >
+                {projects.map((project) => (
+                  <MenuItem key={project.id} value={project.id}>
+                    {project.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ 
+          p: 3, 
+          pt: 1,
+          borderTop: 1,
+          borderColor: 'divider'
+        }}>
+          <Button 
+            onClick={() => setShowAddDialog(false)}
+            variant="outlined"
+            sx={{ 
+              borderRadius: 2,
+              px: 3
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleCreateItem} 
+            variant="contained"
+            sx={{ 
+              borderRadius: 2,
+              px: 3,
+              fontWeight: 600
+            }}
+          >
+            Create {addDialogType === 'task' ? 'Task' : 'Project'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 }
 

@@ -17,6 +17,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import FolderIcon from '@mui/icons-material/Folder';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { styled, useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -103,6 +104,10 @@ function SidebarComponent() {
         navigate('/projects');
     };
 
+    const handleTasks = () => {
+        navigate('/tasks');
+    };
+
     return (
         <Box sx={{ display: 'flex' }}>
             <DrawerComponent variant="permanent" open={open}>
@@ -154,16 +159,16 @@ function SidebarComponent() {
                             <ListItemText primary="Projects" />
                         </ListItem>
                     </Tooltip>
-                    <Tooltip title="Add Task" placement="right">
-                        <ListItem button key="Add Task" onClick={handleAddTask} sx={{
+                    <Tooltip title="Tasks" placement="right">
+                        <ListItem button key="Tasks" onClick={handleTasks} sx={{
                             '&:hover': {
                                 backgroundColor: theme.palette.action.hover,
                             },
                         }}>
                             <ListItemIcon>
-                                <AddBoxIcon />
+                                <AssignmentIcon />
                             </ListItemIcon>
-                            <ListItemText primary="Add Task" />
+                            <ListItemText primary="Tasks" />
                         </ListItem>
                     </Tooltip>
                 </List>
