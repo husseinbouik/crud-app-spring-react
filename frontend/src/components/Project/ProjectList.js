@@ -33,6 +33,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import projectService from '../../services/projectService';
 import ProjectViewModal from './ProjectViewModal';
+import { useNavigate } from 'react-router-dom';
 
 const ProjectList = () => {
   const { user } = useAuth();
@@ -48,6 +49,7 @@ const ProjectList = () => {
   });
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
@@ -67,17 +69,9 @@ const ProjectList = () => {
     }
   };
 
-  const handleOpenDialog = (project = null) => {
-    if (project) {
-      setEditingProject(project);
-      setFormData({
-        name: project.name,
-        description: project.description || ''
-      });
-    } else {
-      setEditingProject(null);
-      setFormData({ name: '', description: '' });
-    }
+  const handleOpenDialog = () => {
+    setEditingProject(null);
+    setFormData({ name: '', description: '' });
     setOpenDialog(true);
   };
 
@@ -97,13 +91,8 @@ const ProjectList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingProject) {
-        await projectService.updateProject(editingProject.id, formData);
-        setSuccess('Project updated successfully!');
-      } else {
-        await projectService.createProject(formData);
-        setSuccess('Project created successfully!');
-      }
+      await projectService.createProject(formData);
+      setSuccess('Project created successfully!');
       handleCloseDialog();
       fetchProjects();
       setTimeout(() => setSuccess(''), 3000);
@@ -128,6 +117,10 @@ const ProjectList = () => {
   const handleViewProject = (project) => {
     setSelectedProject(project);
     setViewModalOpen(true);
+  };
+
+  const handleEditProject = (project) => {
+    navigate(`/edit-project/${project.id}`);
   };
 
   const handleCloseViewModal = () => {
@@ -352,7 +345,7 @@ const ProjectList = () => {
                         <IconButton 
                           size="small" 
                           color="primary"
-                          onClick={() => handleOpenDialog(project)}
+                          onClick={() => handleEditProject(project)}
                           sx={{ 
                             '&:hover': { 
                               backgroundColor: 'primary.light',
@@ -467,10 +460,10 @@ const ProjectList = () => {
           borderColor: 'divider'
         }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {editingProject ? 'Edit Project' : 'Add New Project'}
+            Add New Project
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {editingProject ? 'Update your project details' : 'Create a new project to organize your tasks'}
+            Create a new project to organize your tasks
           </Typography>
         </DialogTitle>
         <form onSubmit={handleSubmit}>
@@ -536,7 +529,7 @@ const ProjectList = () => {
                 fontWeight: 600
               }}
             >
-              {editingProject ? 'Update' : 'Create'}
+              Create
             </Button>
           </DialogActions>
         </form>

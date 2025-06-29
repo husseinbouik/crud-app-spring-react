@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import './App.css'; //Optional
 import AddTaskPage from './components/AddTaskPage';
 import EditTaskPage from './components/EditTaskPage';
+import EditProjectPage from './components/EditProjectPage';
 import ProjectList from './components/Project/ProjectList';
 import TaskList from './components/Task/TaskList';
 import { AuthProvider } from './context/AuthContext';
@@ -38,6 +39,7 @@ function App() {
             <Route path="tasks" element={<TaskList />} />
             <Route path="add-task" element={<AddTaskPage />} />
             <Route path="edit-task/:id" element={<EditTaskPage />} />
+            <Route path="edit-project/:id" element={<EditProjectPage />} />
           </Route>
         </Routes>
       </Router>
