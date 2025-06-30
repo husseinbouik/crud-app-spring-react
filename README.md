@@ -11,6 +11,24 @@ A full-stack task management application built with Spring Boot backend and Reac
 - **Real-time Updates**: Live data synchronization
 - **Docker Support**: Containerized deployment
 
+## 📸 Screenshots
+
+### 🔐 Authentication Interface
+![Login Interface](images/Login.png)
+*Secure login page with modern Material-UI design*
+
+### 🏠 Dashboard Overview
+![Dashboard](images/Dashboard.png)
+*Main dashboard showing project and task overview*
+
+### 📋 Project Management
+![Projects](images/Projects.png)
+*Project management interface with CRUD operations*
+
+### ✅ Task Management
+![Tasks](images/Tasks.png)
+*Task management with status tracking and filtering*
+
 ## 🏗️ Architecture
 
 ```
