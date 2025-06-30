@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("dev")
+@Profile({"dev", "docker"})
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
@@ -20,18 +20,27 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        if (userRepository.count() > 0) {
+            System.out.println("Users already exist, skipping data initialization");
+            return;
+        }
+
+        System.out.println("Initializing sample data...");
+
         // Create sample users
         User alice = new User();
         alice.setUsername("alice");
         alice.setPassword("password123");
         alice.setEmail("alice@example.com");
         userRepository.save(alice);
+        System.out.println("Created user: alice");
 
         User bob = new User();
         bob.setUsername("bob");
         bob.setPassword("password456");
         bob.setEmail("bob@example.com");
         userRepository.save(bob);
+        System.out.println("Created user: bob");
 
         // Create sample projects
         Project personalProject = new Project();
@@ -74,6 +83,6 @@ public class DataInitializer implements CommandLineRunner {
         task3.setProject(readingProject);
         taskRepository.save(task3);
 
-        System.out.println("Sample data initialized successfully!");
+        System.out.println("Sample data initialization completed successfully!");
     }
 } 
